@@ -1,6 +1,8 @@
 function [V, T] = solid_sierpinskuboctahedron(nb_it, option_display)
 
 
+addpath('C:\Users\Nicolas\Desktop\TMW_contributions\mesh_processing_toolbox\src');
+
 % Basis vectors
 V1 = [0 0 0];
 V2 = [2*sqrt(2)/3 0 -4/3];
@@ -13,7 +15,6 @@ V4 = [-sqrt(2)/3 -sqrt(6)/3 -4/3];
 Rmy = @(theta)[cos(theta) 0 -sin(theta);
     0          1  0;
     sin(theta) 0  cos(theta)];
-
 
 Rmz = @(theta)[cos(theta) -sin(theta) 0;
     sin(theta)  cos(theta) 0;
@@ -53,6 +54,7 @@ Tc2 = Tc2 + size(Vc1,1);
 Vcu1 = cat(1,Vc1,Vc2);
 Tcu1 = cat(1,Tc1,Tc2);
 
+% Rotations
 Vcu2 = (Rmz( 2*pi/3)*Vcu1')';
 Tcu2 = Tcu1 + size(Vcu1,1);
 Vcu3 = (Rmz(-2*pi/3)*Vcu1')';
@@ -75,6 +77,11 @@ T = cat(1,T,Tc);
 
 % Remove duplicated triangles
 T = unique(sort(T,2),'rows','stable');
+
+% Remove internal faces (triangles which have > 6 neighbors)
+C = cell2mat(cellfun(@(t) numel(find(sum(bitor(bitor(T==T(t,1),T==T(t,2)),T==T(t,3)),2)==2)),num2cell((1:size(T,1))'),'un',0));
+tgl_idx_2_remove = find(C > 6);
+T = remove_triangles(tgl_idx_2_remove,T,'indices');
 
 % Display
 if option_display

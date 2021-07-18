@@ -1,6 +1,8 @@
 function [V, T] = sierpinski_solid_octahedron(nb_it, option_display)
 
 
+addpath('C:\Users\Nicolas\Desktop\TMW_contributions\mesh_processing_toolbox\src');
+
 % Basis vectors
 I = [1 0 0];
 J = [0 1 0];
@@ -29,6 +31,11 @@ V = cat(1,V,Rz2V);
 
 % Remove duplicated triangles
 T = unique(sort(T,2),'rows','stable');
+
+% Remove internal faces (triangles which have > 6 neighbors)
+C = cell2mat(cellfun(@(t) numel(find(sum(bitor(bitor(T==T(t,1),T==T(t,2)),T==T(t,3)),2)==2)),num2cell((1:size(T,1))'),'un',0));
+tgl_idx_2_remove = find(C > 6);
+T = remove_triangles(tgl_idx_2_remove,T,'indices');
 
 
 if option_display        

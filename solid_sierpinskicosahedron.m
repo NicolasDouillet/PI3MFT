@@ -1,6 +1,9 @@
 function [V, T] = solid_sierpinskicosahedron(nb_it, option_display)
 
 
+addpath('C:\Users\Nicolas\Desktop\TMW_contributions\mesh_processing_toolbox\src');
+
+
 % Summits of the first tetrahedron with edge length = 1
 phi_n = 0.5*(1+sqrt(5));
 centre_angle = 2*asin(1/sqrt(phi_n*sqrt(5)));
@@ -54,6 +57,11 @@ T = [T; Tr1; Tr2; Tr3; Tr4];
 
 % Remove duplicated triangles
 T = unique(sort(T,2),'rows','stable');
+
+% Remove internal faces (triangles which have > 6 neighbors)
+C = cell2mat(cellfun(@(t) numel(find(sum(bitor(bitor(T==T(t,1),T==T(t,2)),T==T(t,3)),2)==2)),num2cell((1:size(T,1))'),'un',0));
+tgl_idx_2_remove = find(C > 6);
+T = remove_triangles(tgl_idx_2_remove,T,'indices');
 
 % Display
 if option_display
