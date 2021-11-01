@@ -91,6 +91,11 @@ T = cat(1,T,Ttbr,Tbbl,Tbtr,Tin,Ttbp,Tsy,Tsx);
 % Remove duplicated triangles
 T = unique(sort(T,2),'rows','stable');
 
+% Remove internal faces (triangles which have > 6 neighbors)
+C = cell2mat(cellfun(@(t) numel(find(sum(bitor(bitor(T==T(t,1),T==T(t,2)),T==T(t,3)),2)==2)),num2cell((1:size(T,1))'),'un',0));
+tgl_idx_2_remove = find(C > 6);
+T = remove_triangles(tgl_idx_2_remove,T,'indices');
+
 
 if option_display        
     display_fractal_octahedron(V,T);    

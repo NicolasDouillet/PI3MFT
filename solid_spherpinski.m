@@ -21,7 +21,7 @@ sphere_coord_mat(:,4) = abs(sin(sphere_coord_mat(:,2))) .* (abs(cos(sphere_coord
 
 idx = isnan(sphere_coord_mat(:,4));
 sphere_coord_mat(idx,4) = 1;
-V = V .* repmat(sphere_coord_mat(:,4),[1 3]);
+V = V .* repmat(sphere_coord_mat(:,4),[1 3]); % ./ for astroid
 
 % Perform one Rz 180° rotation, and one Rx 180° rotation such that the
 % resulting sierpinski sphere is based on a regular octahedron
@@ -73,7 +73,7 @@ function [] = display_fractal_sphere(V, T)
 
 figure;
 set(gcf,'Color',[0 0 0]);
-C = sqrt(sum(V.^2,2));
+C = sum(V.^2,2);
 trisurf(T,V(:,1),V(:,2),V(:,3),C);
 c = colormap('hsv');
 colormap(1-c);

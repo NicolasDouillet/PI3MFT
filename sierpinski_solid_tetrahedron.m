@@ -6,8 +6,6 @@ addpath('C:\Users\Nicolas\Desktop\TMW_contributions\mesh_processing_toolbox\src'
 % TODO :
 %
 % - Règlage sample_step
-% - Corriger taille itération 1
-% - Bug iteration >= 2
 
 % % Vertices of tetrahedron basis (level 0) included in the unit sphere
 % M1 = [2*sqrt(2)/3  0         -1/3]; % right
@@ -77,7 +75,7 @@ T = unique(sort(T,2),'rows','stable');
 
 % Remove internal faces (triangles which have > 6 neighbors)
 C = cell2mat(cellfun(@(t) numel(find(sum(bitor(bitor(T==T(t,1),T==T(t,2)),T==T(t,3)),2)==2)),num2cell((1:size(T,1))'),'un',0));
-tgl_idx_2_remove = find(C > 6);
+tgl_idx_2_remove = find(C > 5);
 T = remove_triangles(tgl_idx_2_remove,T,'indices');
 
 
