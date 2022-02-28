@@ -3,16 +3,16 @@ function [V, T] = solid_sierpinskube(nb_it, option_display)
 
 addpath('C:\Users\Nicolas\Desktop\TMW_contributions\mesh_processing_toolbox\src');
 
-% Body
 % Summits of original cube (living in the unit sphere R(O,1))
-C = (sqrt(3)/3)*[ 1  1  1;...
-                 -1  1  1;...
-                 -1 -1  1;...
-                  1 -1  1;...
-                  1  1 -1;...
-                 -1  1 -1;...
-                 -1 -1 -1;...
-                  1 -1 -1];   
+a = 1;
+C = a*[ 1  1  1;...
+       -1  1  1;...
+       -1 -1  1;...
+        1 -1  1;...
+        1  1 -1;...
+       -1  1 -1;...
+       -1 -1 -1;...
+        1 -1 -1];   
 
 % Summits of one corner tetrahedron (living in the unit sphere R(O,1))
 V1 = C(2,:);
@@ -44,9 +44,37 @@ V = cat(1,V,Vtbr,Vbbl,Vbtr,Vin);
 T = cat(1,T,Ttbr,Tbbl,Tbtr,Tin);
 
 
+twisted_cube_option = true;
+cylinder_option = false;
+torus_option = false;
 ball_option = false;
 
+
+if twisted_cube_option
+   
+    Mrz = @(theta)[cos(theta) -sin(theta) 0;
+                   sin(theta)  cos(theta) 0;
+                   0           0          1];
+   
+    V(:,3) = 0.25*pi*(1+V(:,3));
+    C = max(abs(V(:,1:2)),[],2);
+    
+    for k = 1:size(V,1)
+        
+        V(k,:) = (Mrz(V(k,3))*V(k,:)')';
+        
+    end
+    
+    % Renormalization
+    V(:,2) = 0.5*(1+sqrt(5)) * V(:,2);
+    V(:,3) = 0.5*(1+sqrt(5))^2 * V(:,3) / pi;                
+    
+end
+
+
 if ball_option        
+    
+    C = max(abs(V),[],2);
     
     % - (1) Déterminer le vecteur normal du plan du cube le plus proche
     % de chaque point M (table)
@@ -65,26 +93,95 @@ if ball_option
     % - (3) Calculer le ratio de distances k = OI / r (r, le rayon de la sphère circonscrite; a ici)
     % - (4) Multiplier OM par r.
     
-    k = a * sqrt(sum(I.^2,2));
+    k = a .* sqrt(sum(I.^2,2));
     V = k .* V;        
     
 end
 
 
-% Remove duplicated vertices
-[V,T] = remove_duplicated_vertices(V,T);
-
-% Remove duplicated triangles
-T = unique(sort(T,2),'rows','stable');
-
-% Remove internal faces (triangles which have > 6 neighbors)
-C = cell2mat(cellfun(@(t) numel(find(sum(bitor(bitor(T==T(t,1),T==T(t,2)),T==T(t,3)),2)==2)),num2cell((1:size(T,1))'),'un',0));
-tgl_idx_2_remove = find(C > 7);
-T = remove_triangles(tgl_idx_2_remove,T,'indices');
+% % Remove duplicated vertices
+% [V,T] = remove_duplicated_vertices(V,T);
+% 
+% % Remove duplicated triangles
+% T = unique(sort(T,2),'rows','stable');
 
 
-if option_display        
-    display_fractal_octahedron(V,T);    
+% % Remove internal faces (triangles which have > 6 neighbors)
+% C = cell2mat(cellfun(@(t) numel(find(sum(bitor(bitor(T==T(t,1),T==T(t,2)),T==T(t,3)),2)==2)),num2cell((1:size(T,1))'),'un',0));
+% tgl_idx_2_remove = find(C > 7);
+% T = remove_triangles(tgl_idx_2_remove,T,'indices');
+
+
+if torus_option
+    
+    C = max(abs(V(:,1:2)),[],2);
+    C = cat(1,C,C,C,C,C,C,C,C);
+    V(:,3) = 0.125*pi*(1+V(:,3));
+
+end
+
+
+if cylinder_option || torus_option
+    
+    C = max(abs(V(:,1:2)),[],2);
+    
+    % (1) Déterminer le vecteur normal du plan du cube le plus proche
+    % de chaque point M (table)
+    
+    f = abs(V(:,1:2)) == max(abs(V(:,1:2)),[],2);
+    n = cat(2,a * sign(V(:,1:2)) .* f, zeros(size(V,1),1));
+    
+    % (2) Calculer I, le point d'intersection entre le vecteur OM et ce plan (besoin algos line-plane intersection
+    % distance) ; même point du plan pris que vecteur normal
+    
+    M = n;
+    u = cat(2,V(:,1:2)./sqrt(sum(V(:,1:2).^2,2)),zeros(size(V,1),1));
+    
+    I = V + u .* (dot(n,M,2) - dot(n,V,2)) ./ dot(n,u,2);
+    
+    % (3) Calculer le ratio de distances k = OI / r (r, le rayon de la sphère circonscrite; a ici)
+    % (4) Multiplier OM par r.
+    
+    k = a ./ sqrt(sum(I(:,1:2).^2,2));
+    V(:,1:2) = k .* V(:,1:2);
+    
+end
+    
+
+if torus_option
+    
+    Mry = @(theta)[cos(theta) 0 -sin(theta);
+        0          1  0;
+        sin(theta) 0  cos(theta)];
+    
+    V(:,1) = 0.125*pi + 0.5*(1+V(:,1));
+    V(:,2) = 0.5*V(:,2);
+    Z = V(:,3);
+    
+    for k = 1:size(V,1)
+        
+        V(k,:) = (Mry(V(k,3))*cat(2,V(k,1:2),0)')';
+        
+    end
+    
+    V(:,3) = -V(:,3) - sin(Z);
+    V(:,1) = V(:,1) + cos(Z);
+    
+    % Three other quarters creation
+    T = cat(1,T,T+size(V,1));
+    V = cat(1,V,(Mry(0.25*pi)*V')');
+    T = cat(1,T,T+size(V,1));
+    V = cat(1,V,(Mry(0.5*pi)*V')');
+    T = cat(1,T,T+size(V,1));
+    V = cat(1,V,(Mry(pi)*V')');
+    
+end
+
+
+if option_display  
+            
+    display_solid_sierpinskube(V,T,C);    
+    
 end
 
 
@@ -101,23 +198,21 @@ T_out = n(T_in);
 end % remove_duplicated_vertices
 
 
-% display_fractal_tetra subfunction
-function [] = display_fractal_octahedron(V, T)
+% display_solid_sierpinskube subfunction
+function [] = display_solid_sierpinskube(V, T, C)
 
 
 figure;
 set(gcf,'Color',[0 0 0]);
-C = sqrt(sum(V.^2,2));
-trisurf(T,V(:,1),V(:,2),V(:,3),C); colormap(flipud('hot'));
+trisurf(T,V(:,1),V(:,2),V(:,3),C); colormap(1-jet);
 shading interp;
 
 set(gca,'Color',[0 0 0],'XColor',[1 1 1],'YColor',[1 1 1],'ZColor',[1 1 1]);
 ax = gca;
 ax.Clipping = 'off';
 axis equal, axis tight, axis off;
-% camlight right;
-% camlight head;
+camlight left;
 view(-17.64,16.95);
 
 
-end % display_fractal_tetra
+end % display_solid_sierpinskube
