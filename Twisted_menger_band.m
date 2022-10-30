@@ -1,5 +1,6 @@
-function [V, T, C] = Menger_shapes(nb_it, printable_ready, option_display)
-
+function [V, T, C] = Twisted_menger_band(nb_it, option_display)
+%
+% Author & support : nicolas.douillet (at) free.fr, 2022.
 
 % Summits of original cube
 a = 1;
@@ -55,143 +56,58 @@ end
 [V,T] = squares2triangles(C);
 
 
-twisted_cube_option = false;
-twisted_cylinder_option = false;
-cylinder_option = false;
-torus_option = true;
-
 Mrz = @(theta)[cos(theta) -sin(theta) 0;
-               sin(theta)  cos(theta) 0;
-               0           0          1];
-               
+    sin(theta)  cos(theta) 0;
+    0           0          1];
 
-if twisted_cube_option       
-   
-    V(:,3) = 0.25*pi*(1+V(:,3));
-    C = max(abs(V(:,1:2)),[],2);
+
+C = max(abs(V(:,1:2)),[],2);
+V(:,3) = 0.125*pi*(1+V(:,3));
+C = cat(1,C,C,C,C,C,C,C,C);
+
+
+for k = 1:size(V,1)
     
-    for k = 1:size(V,1)
-        
-        V(k,:) = (Mrz(V(k,3))*V(k,:)')';
-        
-    end
-    
-    % Renormalization
-    V(:,2) = 0.5*(1+sqrt(5)) * V(:,2);
-    V(:,3) = 0.5*(1+sqrt(5))^2 * V(:,3) / pi;                
+    V(k,:) = (Mrz(V(k,3))*V(k,:)')';
     
 end
 
 
-if cylinder_option || torus_option
-    
-    C = max(abs(V(:,1:2)),[],2);    
-    V(:,3) = 0.125*pi*(1+V(:,3));        
-        
-end
+Mry = @(theta)[cos(theta) 0 -sin(theta);
+    0          1  0;
+    sin(theta) 0  cos(theta)];
 
-if torus_option
-    
-    C = cat(1,C,C,C,C,C,C,C,C);
-    
-end
+V(:,1) = 0.125*pi + 0.5*(1+V(:,1));
+V(:,2) = 0.5*V(:,2);
+Z = V(:,3);
 
-
-if cylinder_option || torus_option        
+for k = 1:size(V,1)
     
-    % - (1) Déterminer le vecteur normal du plan du cube le plus proche
-    % de chaque point M (table)
-    
-    f = abs(V(:,1:2)) == max(abs(V(:,1:2)),[],2);
-    n = cat(2,a * sign(V(:,1:2)) .* f, zeros(size(V,1),1));
-    
-    % - (2) Calculer I, le point d'intersection entre le vecteur OM et ce plan (besoin algos line-plane intersection
-    % distance) ; même point du plan pris que vecteur normal
-    
-    M = n;
-    u = cat(2,V(:,1:2)./sqrt(sum(V(:,1:2).^2,2)),zeros(size(V,1),1));
-    
-    I = V + u .* (dot(n,M,2) - dot(n,V,2)) ./ dot(n,u,2);
-    
-    % - (3) Calculer le ratio de distances k = OI / r (r, le rayon de la sphère circonscrite; a ici)
-    % - (4) Multiplier OM par r.
-    
-    k = a ./ sqrt(sum(I(:,1:2).^2,2));
-    V(:,1:2) = k .* V(:,1:2);
-    
-    if twisted_cylinder_option
-        
-        for k = 1:size(V,1)
-            
-            V(k,:) = (Mrz(V(k,3))*V(k,:)')';
-            
-        end
-        
-    end
+    V(k,:) = (Mry(V(k,3))*cat(2,V(k,1:2),0)')';
     
 end
 
+V(:,3) = V(:,3) + sin(Z);
+V(:,1) = V(:,1) + cos(Z);
 
-if ~printable_ready
-    
-    % Remove duplicated vertices
-    [V,T] = remove_duplicated_vertices(V,T);
-        
-    % Remove duplicated triangles
-    T = unique(sort(T,2),'rows','stable');
-    
-end
-
-
-if torus_option        
-    
-    Mry = @(theta)[cos(theta) 0 -sin(theta);
-        0          1  0;
-        sin(theta) 0  cos(theta)];
-    
-    V(:,1) = 0.125*pi + 0.5*(1+V(:,1));
-    V(:,2) = 0.5*V(:,2);
-    Z = V(:,3);
-    
-    for k = 1:size(V,1)
-        
-        V(k,:) = (Mry(V(k,3))*cat(2,V(k,1:2),0)')';
-        
-    end
-    
-    V(:,3) = V(:,3) + sin(Z);
-    V(:,1) = V(:,1) + cos(Z);
-    
-    % Three other quarters creation
-    T = cat(1,T,T+size(V,1));
-    
-    %     if twisted_cylinder_option
-    %
-    %
-    %
-    %     end
-    
-    % 0.125*pi rotate all the other cylinders from their basis
-    V = cat(1,V,(Mry(0.25*pi)*V')');
-    T = cat(1,T,T+size(V,1));
-    V = cat(1,V,(Mry(0.5*pi)*V')');
-    T = cat(1,T,T+size(V,1));
-    V = cat(1,V,(Mry(pi)*V')');
-    
-    
-    
-end
+% Three other quarters creation
+T = cat(1,T,T+size(V,1));
+V = cat(1,V,cat(2,V(:,1),-V(:,2),-V(:,3)));
+T = cat(1,T,T+size(V,1));
+V = cat(1,V,(Mry(0.5*pi)*V')');
+T = cat(1,T,T+size(V,1));
+V = cat(1,V,(Mry(pi)*V')');
 
 
 % Display
 if option_display
     
-    disp_Menger_shapes(V,T,C);
+    disp_Twisted_menger_band(V,T,C);
     
 end
 
 
-end % Menger_shapes
+end % Twisted_menger_band
 
 
 % Split cube subfunction
@@ -514,7 +430,7 @@ end % squares2triangles
 
 
 % Display subfunction
-function [] = disp_Menger_shapes(V, T, C)
+function [] = disp_Twisted_menger_band(V, T, C)
 
     figure;        
     trisurf(T,V(:,1),V(:,2),V(:,3),C), shading interp, hold on;
@@ -526,7 +442,7 @@ function [] = disp_Menger_shapes(V, T, C)
     camlight(315,0);
     view(-25,15);
 
-end % disp_Menger_shapes
+end % disp_Twisted_menger_band
 
 
 % Remove duplicated vertices subfunction

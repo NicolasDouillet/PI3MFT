@@ -1,4 +1,4 @@
-function [V, T] = solid_sierpinskube(nb_it, option_display)
+function [V, T, C] = solid_sierpinskube(nb_it, option_display)
 
 
 addpath('C:\Users\Nicolas\Desktop\TMW_contributions\mesh_processing_toolbox\src');
@@ -44,10 +44,10 @@ V = cat(1,V,Vtbr,Vbbl,Vbtr,Vin);
 T = cat(1,T,Ttbr,Tbbl,Tbtr,Tin);
 
 
-twisted_cube_option = true;
+twisted_cube_option = false;
 cylinder_option = false;
 torus_option = false;
-ball_option = false;
+ball_option = true;
 
 
 if twisted_cube_option
@@ -57,7 +57,7 @@ if twisted_cube_option
                    0           0          1];
    
     V(:,3) = 0.25*pi*(1+V(:,3));
-    C = max(abs(V(:,1:2)),[],2);
+    % C = max(abs(V(:,1:2)),[],2);
     
     for k = 1:size(V,1)
         
@@ -93,7 +93,7 @@ if ball_option
     % - (3) Calculer le ratio de distances k = OI / r (r, le rayon de la sphère circonscrite; a ici)
     % - (4) Multiplier OM par r.
     
-    k = a .* sqrt(sum(I.^2,2));
+    k = a ./ sqrt(sum(I.^2,2));
     V = k .* V;        
     
 end
@@ -116,14 +116,14 @@ if torus_option
     
     C = max(abs(V(:,1:2)),[],2);
     C = cat(1,C,C,C,C,C,C,C,C);
-    V(:,3) = 0.125*pi*(1+V(:,3));
-
+    V(:,3) = 0.125*pi*(1+V(:,3));        
+    
 end
 
 
 if cylinder_option || torus_option
     
-    C = max(abs(V(:,1:2)),[],2);
+    % C = max(abs(V(:,1:2)),[],2);
     
     % (1) Déterminer le vecteur normal du plan du cube le plus proche
     % de chaque point M (table)
@@ -179,7 +179,7 @@ end
 
 
 if option_display  
-            
+               
     display_solid_sierpinskube(V,T,C);    
     
 end
