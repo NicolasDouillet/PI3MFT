@@ -1,6 +1,6 @@
 function [V, T] = Mengerusalem_cube(nb_it)
 %
-% Author & support : nicolas.douillet (at) free.fr, 2017-2022.
+% Author & support : nicolas.douillet (at) free.fr, 2017-2023.
 
 
 % Body
@@ -19,17 +19,22 @@ V8 = -V2;
 C = cube(V1, V2, V3, V4, V5, V6, V7, V8);
 
 for k = 1:nb_it
-              
-    C = Jerusalem_cube_main_algo(C,k);
-    if k < 2
-    C = Menger_cube_main_algo(C);  
+    
+    if mod(k,2) == 0 % 1 pour le JerusaleMenger
+        
+        C = Jerusalem_cube_main_algo(C,k);
+                
+    else
+        
+        C = Menger_cube_main_algo(C,k);
+        
     end
     
 end
 
 [V,T] = squares2triangles(C);
 cmap = max(abs(V),[],2); % sqrt(sum(V.^2,2));
-disp_Mengerusalem_cube(V, T, cmap);
+% disp_Mengerusalem_cube(V, T, cmap);
 
 
 end % Mengerusalem_cube
@@ -104,7 +109,7 @@ function [] = disp_Mengerusalem_cube(V, T, cmap)
 % Author & support : nicolas.douillet (at) free.fr, 2017-2022.
 
 figure;
-set(gcf,'Color',[1 1 1]), set(gca,'Color',[1 1 1]);
+set(gcf,'Color',[0 0 0]), set(gca,'Color',[0 0 0]);
 trisurf(T,V(:,1),V(:,2),V(:,3),cmap), shading flat, hold on;
 colormap(flipud(1-hsv.^0.5));
 axis square, axis equal, axis tight, axis off;

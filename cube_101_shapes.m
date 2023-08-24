@@ -58,11 +58,11 @@ end
 [V,T] = squares2triangles(C);
 
 
-twisted_cube_option = false;
+twisted_cube_option = true;
 twisted_cylinder_option = false;
 cylinder_option = false;
-torus_option = true;
-
+torus_option = false;
+ball_option = false;
 
 
 Mrz = @(theta)[cos(theta) -sin(theta) 0;
@@ -72,19 +72,14 @@ Mrz = @(theta)[cos(theta) -sin(theta) 0;
 
 if twisted_cube_option       
    
-    V(:,3) = 0.25*pi*(1+V(:,3));
-    % C = max(abs(V),[],2);
-    C = max(abs(V(:,1:2)),[],2);
+    [V, C] = twisted_cube_transformation(V, Mrz);           
     
-    for k = 1:size(V,1)
-        
-        V(k,:) = (Mrz(V(k,3))*V(k,:)')';
-        
-    end
+end
+
+
+if ball_option        
     
-    % Renormalization
-    V(:,2) = 0.5*(1+sqrt(5)) * V(:,2);
-    V(:,3) = 0.5*(1+sqrt(5))^2 * V(:,3) / pi;                
+    [V,C] = ball_transformation(V,a);
     
 end
 
@@ -965,7 +960,7 @@ function [] = disp_cube_101_shapes(V, T, C)
 figure;
 set(gcf,'Color',[0 0 0]), set(gca,'Color',[0 0 0]);
 trisurf(T,V(:,1),V(:,2),V(:,3),C), shading interp, hold on;
-colormap(bone);
+colormap(flipud(1-hsv.^0.5));
 axis square, axis equal, axis tight, axis off;
 grid off;
 ax = gca;

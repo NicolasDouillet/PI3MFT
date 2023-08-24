@@ -3,7 +3,7 @@ function [C] = Jerusalem_cube_main_algo(C,k)
 
 epsilon = 1e4 * eps;
 sup_edglength = 0;
-inf_edglength = inf;
+inf_edglength = Inf;
 
 % à optimiser, maximum dans une structure
 for n = 1:size(C,3)

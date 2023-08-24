@@ -1,4 +1,6 @@
 function [V, T, C] = Menger_shapes(nb_it, printable_ready, option_display)
+%
+% Author & support : nicolas.douillet (at) free.fr, 2017-2023.
 
 
 % Summits of original cube
@@ -55,30 +57,28 @@ end
 [V,T] = squares2triangles(C);
 
 
+cube_logstransform_option = true;
 twisted_cube_option = false;
 twisted_cylinder_option = false;
 cylinder_option = false;
-torus_option = true;
+torus_option = false;
+
 
 Mrz = @(theta)[cos(theta) -sin(theta) 0;
                sin(theta)  cos(theta) 0;
                0           0          1];
                
 
+if cube_logstransform_option
+   
+    [V,C] = cube_logtransform(V);
+    
+end           
+           
+           
 if twisted_cube_option       
    
-    V(:,3) = 0.25*pi*(1+V(:,3));
-    C = max(abs(V(:,1:2)),[],2);
-    
-    for k = 1:size(V,1)
-        
-        V(k,:) = (Mrz(V(k,3))*V(k,:)')';
-        
-    end
-    
-    % Renormalization
-    V(:,2) = 0.5*(1+sqrt(5)) * V(:,2);
-    V(:,3) = 0.5*(1+sqrt(5))^2 * V(:,3) / pi;                
+    [V, C] = twisted_cube_transformation(V, Mrz);           
     
 end
 

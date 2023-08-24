@@ -1,7 +1,6 @@
-function [V, T, C] = Jerusalem_shapes(nb_it, printable_ready, option_display)
+function [V, T, C] = Iteraion_colormap_test(nb_it, option_display)
 %
-% Author & support : nicolas.douillet (at) free.fr, 2021-2023.
-
+% Author & support : nicolas.douillet (at) free.fr, 2022.
 
 % Summits of original cube
 a = 1;
@@ -17,7 +16,7 @@ V7 = -V1;
 V8 = -V2;
 
 C = cube(V1, V2, V3, V4, V5, V6, V7, V8);
-
+cmap = ones(8,1);
 
 h = sqrt(2) - 1; % homothetie ratio
 p = 0;
@@ -25,7 +24,9 @@ p = 0;
 while p ~= nb_it+2
         
     new_C_array = C;
+    new_cmap = cmap;
     cube_idx_to_suppr = [];
+    cmap_idx_to_suppr = [];
     
     for j = 1 : size(C,3)
         
@@ -34,6 +35,8 @@ while p ~= nb_it+2
         if (max(C_current.vertex(:,1)) - min(C_current.vertex(:,1))) > edglength*h^(p-1)
             
             cube_idx_to_suppr = cat(2,cube_idx_to_suppr,j);
+            cmap_idx_to_suppr = cat(1,cmap_idx_to_suppr,(8*(j-1)+1:8*j)');
+            
             [V_new, F_new] = split_cube(C_current,h);
             
             for m = 1:size(F_new,1)/6
@@ -48,6 +51,7 @@ while p ~= nb_it+2
                                 V_new(F_new(6*(m-1)+2,4),:)); 
                                 
                 new_C_array = cat(3,new_C_array,new_cube);
+                new_cmap = cat(1,new_cmap,(1-(p+2)/nb_it)*ones(8,1));
                 
             end
             
@@ -55,136 +59,75 @@ while p ~= nb_it+2
         
     end
     
-    new_C_array(:,:,cube_idx_to_suppr) = [];
-    C = new_C_array;            
+    new_C_array(:,:,cube_idx_to_suppr) = [];            
+    new_cmap(cmap_idx_to_suppr) = [];        
+    C = new_C_array;     
+    cmap = new_cmap;
     p = p+1;
     
 end
-    
+
 
 % Squares to triangles conversion
 [V,T] = squares2triangles(C);
 
 
-cube_logstransform_option = false;
-twisted_cube_option = true;
-cylinder_option = false;
-torus_option = false;
-
-
 Mrz = @(theta)[cos(theta) -sin(theta) 0;
-               sin(theta)  cos(theta) 0;
-               0           0          1];
+    sin(theta)  cos(theta) 0;
+    0           0          1];
 
 
-if cube_logstransform_option
-   
-    [V,C] = cube_logtransform(V);    
+% C = max(abs(V(:,1:2)),[],2);
+% C = cat(1,C,C,C,C,C,C,C,C);
+cmap = cat(1,cmap,cmap,cmap,cmap,cmap,cmap,cmap,cmap);
+V(:,3) = 0.125*pi*(1+V(:,3));
+
+
+for k = 1:size(V,1)
+    
+    V(k,:) = (Mrz(V(k,3))*V(k,:)')';
     
 end
 
 
-if twisted_cube_option       
-   
-    [V, C] = twisted_cube_transformation(V, Mrz);           
+Mry = @(theta)[cos(theta) 0 -sin(theta);
+    0          1  0;
+    sin(theta) 0  cos(theta)];
+
+V(:,1) = 0.125*pi + 0.5*(1+V(:,1));
+V(:,2) = 0.5*V(:,2);
+Z = V(:,3);
+
+for k = 1:size(V,1)
+    
+    V(k,:) = (Mry(V(k,3))*cat(2,V(k,1:2),0)')';
     
 end
 
+V(:,3) = V(:,3) + sin(Z);
+V(:,1) = V(:,1) + cos(Z);
 
-if cylinder_option || torus_option
-    
-    C = max(abs(V(:,1:2)),[],2);    
-    V(:,3) = 0.125*pi*(1+V(:,3));
-    
-end
-
-if torus_option
-    
-    C = cat(1,C,C,C,C,C,C,C,C);
-    
-end
+% Three other quarters creation
+T = cat(1,T,T+size(V,1));
+V = cat(1,V,cat(2,V(:,1),-V(:,2),-V(:,3)));
+T = cat(1,T,T+size(V,1));
+V = cat(1,V,(Mry(0.5*pi)*V')');
+T = cat(1,T,T+size(V,1));
+V = cat(1,V,(Mry(pi)*V')');
 
 
-if cylinder_option || torus_option    
-    
-    % - (1) Déterminer le vecteur normal du plan du cube le plus proche
-    % de chaque point M (table)
-    
-    f = abs(V(:,1:2)) == max(abs(V(:,1:2)),[],2);
-    n = cat(2,a * sign(V(:,1:2)) .* f, zeros(size(V,1),1));
-    
-    % - (2) Calculer I, le point d'intersection entre le vecteur OM et ce plan (besoin algos line-plane intersection
-    % distance) ; même point du plan pris que vecteur normal
-    
-    M = n;
-    u = cat(2,V(:,1:2)./sqrt(sum(V(:,1:2).^2,2)),zeros(size(V,1),1));
-    
-    I = V + u .* (dot(n,M,2) - dot(n,V,2)) ./ dot(n,u,2);
-    
-    % - (3) Calculer le ratio de distances k = OI / r (r, le rayon de la sphère circonscrite; a ici)
-    % - (4) Multiplier OM par r.
-    
-    k = a ./ sqrt(sum(I(:,1:2).^2,2));
-    V(:,1:2) = k .* V(:,1:2);
-    
-end
+[V, T, cmap] = remove_duplicated_vertices(V, T, cmap);
 
-
-if ~printable_ready
-    
-    % Remove duplicated vertices
-    [V,T] = remove_duplicated_vertices(V,T);
-        
-    % Remove duplicated triangles
-    T = unique(sort(T,2),'rows','stable');
-    
-end
-
-
-if torus_option
-    
-    Mry = @(theta)[cos(theta) 0 -sin(theta);
-        0          1  0;
-        sin(theta) 0  cos(theta)];
-    
-    V(:,1) = 0.125*pi + 0.5*(1+V(:,1));
-    V(:,2) = 0.5*V(:,2);
-    Z = V(:,3);
-    
-    for k = 1:size(V,1)
-        
-        V(k,:) = (Mry(V(k,3))*cat(2,V(k,1:2),0)')';
-        
-    end
-    
-    V(:,3) = V(:,3) + sin(Z);
-    V(:,1) = V(:,1) + cos(Z);
-    
-    % Three other quarters creation
-    T = cat(1,T,T+size(V,1));
-    V = cat(1,V,(Mry(0.25*pi)*V')');
-    T = cat(1,T,T+size(V,1));
-    V = cat(1,V,(Mry(0.5*pi)*V')');
-    T = cat(1,T,T+size(V,1));
-    V = cat(1,V,(Mry(pi)*V')');
-    
-end
 
 % Display
-if option_display
+if option_display        
     
-    warning('on');
-    
-    if option_display && nb_it > 4
-        warning('%s triangles to display !',num2str(size(T,1)))
-    end                
-    
-    disp_Jerusalem_shapes(V,T,C);
+    disp_JerusaleMoebius(V,T,cmap);
     
 end
 
 
-end % Jerusalem_shapes
+end % JerusaleMoebius
 
 
 % Split cube subfunction
@@ -642,15 +585,15 @@ F5 = [2 3 7 6];
 F6 = [3 4 8 7];
 
 C = struct('vertex', [V1; V2; V3; V4; V5; V6; V7; V8], ...
-    'facet', [F1; F2; F3; F4; F5; F6]);
-
+           'facet', [F1; F2; F3; F4; F5; F6]);
+       
 end % cube
 
 
 % Squares to triangles conversion subfunction
 function [V, T] = squares2triangles(C)
 %
-% Author & support : nicolas.douillet (at) free.fr, 2017-2022.
+% Author & support : nicolas.douillet (at) free.fr, 2017-2020.
 %
 % Split struct array into two arrays : vertices & facets
 
@@ -690,11 +633,11 @@ end % squares2triangles
 
 
 % Display subfunction
-function [] = disp_Jerusalem_shapes(V, T, C)
+function [] = disp_JerusaleMoebius(V, T, C)
 
-    figure;
+    figure;        
     trisurf(T,V(:,1),V(:,2),V(:,3),C), shading interp, hold on;
-    colormap(flipud(1-parula));
+    colormap(summer);
     ax = gca;
     ax.Clipping = 'off';
     set(gcf,'Color',[0 0 0]), set(ax,'Color',[0 0 0]);
@@ -702,14 +645,15 @@ function [] = disp_Jerusalem_shapes(V, T, C)
     camlight(315,0);
     view(-25,15);
 
-end % disp_Jerusalem_shapes
+end % disp_JerusaleMoebius
 
 
 % Remove duplicated vertices subfunction
-function [V_out, T_out] = remove_duplicated_vertices(V_in, T_in)
+function [V_out, T_out, cmap_out] = remove_duplicated_vertices(V_in, T_in, cmap_in)
 
 tol = 1e4*eps;
-[V_out,~,n] = uniquetol(V_in,tol,'ByRows',true);
+[V_out,m,n] = uniquetol(V_in,tol,'ByRows',true);
 T_out = n(T_in);
+cmap_out = cmap_in(m);
 
 end % remove_duplicated_vertices

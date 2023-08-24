@@ -262,7 +262,7 @@ while p <= nbstep^2 && row_length > 1
             
             T = cat(1,T,[i i+1 i+row_length]);
             row_idx = row_idx + 1;            
-            T = cat(1,T,[i i+1 i-row_length]); % + upside-down triangles serie
+            T = cat(1,T,[i i-row_length i+1]); % + upside-down triangles serie
             row_idx = row_idx + 1;            
             i = i +1;
             

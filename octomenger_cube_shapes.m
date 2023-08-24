@@ -1,11 +1,11 @@
-function [V, T] = cube_101(nb_it, option_display)
+function [V, T] = octomenger_cube_shapes(nb_it, option_display)
 %
-% Author & support : nicolas.douillet (at) free.fr, 2022.
+% Author & support : nicolas.douillet (at) free.fr, 2017-2022.
 
 
 % Body
 % Summits of original cube (living in the unit sphere R(O,1))
-a = sqrt(3)/3;
+a = 1;
 % edglength = 2*a;
 
 V1 = [a a a];
@@ -24,7 +24,7 @@ p = 0;
 
 while p ~= nb_it
         
-    new_C_array = repmat(C, [1 1 57]);
+    new_C_array = repmat(C, [1 1 81]);
     
     for j = 1 : size(C,3)
         
@@ -42,7 +42,7 @@ while p ~= nb_it
                             V_new(F_new(6*(m-1)+2,3),:),...
                             V_new(F_new(6*(m-1)+2,4),:));
             
-            new_C_array(:,:,57*(j-1) + m) = new_cube;
+            new_C_array(:,:,81*(j-1) + m) = new_cube;
             
         end                
         
@@ -57,49 +57,123 @@ end
 % Squares to triangles conversion
 [V,T] = squares2triangles(C);
 
+
+twisted_cube_option = false;
+twisted_cylinder_option = false;
+cylinder_option = false;
+torus_option = false;
 ball_option = false;
 
-if ball_option        
-    
-    % - (1) Déterminer le vecteur normal du plan du cube le plus proche
-    % de chaque point M (table)
+
+Mrz = @(theta)[cos(theta) -sin(theta) 0;
+               sin(theta)  cos(theta) 0;
+               0           0          1];
+               
+
+if twisted_cube_option       
    
-    f = abs(V) == max(abs(V),[],2); 
-    n = a * sign(V) .* f;        
-    
-    % - (2) Calculer I, le point d'intersection entre le vecteur OM et ce plan (besoin algos line-plane intersection
-    % distance) ; même point du plan pris que vecteur normal
-      
-    M = n;
-    u = V ./ sqrt(sum(V.^2,2));        
-    
-    I = V + u .* (dot(n,M,2) - dot(n,V,2)) ./ dot(n,u,2);     
-        
-    % - (3) Calculer le ratio de distances k = OI / r (r, le rayon de la sphère circonscrite; a ici)
-    % - (4) Multiplier OM par r.
-    
-    k = a .* sqrt(sum(I.^2,2));
-    V = k .* V;        
+    [V, C] = twisted_cube_transformation(V, Mrz);           
     
 end
 
 
-% Remove duplicated vertices
-[V,T] = remove_duplicated_vertices(V,T);
+if ball_option        
+    
+    [V,C] = ball_transformation(V,a);
+    
+end
 
-% Remove duplicated triangles
-T = unique(sort(T,2),'rows','stable');
+
+if cylinder_option || torus_option
+    
+    C = max(abs(V(:,1:2)),[],2);    
+    V(:,3) = 0.125*pi*(1+V(:,3));        
+        
+end
+
+if torus_option
+    
+    C = cat(1,C,C,C,C,C,C,C,C);
+    
+end
+
+
+if cylinder_option || torus_option        
+    
+    % - (1) Déterminer le vecteur normal du plan du cube le plus proche
+    % de chaque point M (table)
+    
+    f = abs(V(:,1:2)) == max(abs(V(:,1:2)),[],2);
+    n = cat(2,a * sign(V(:,1:2)) .* f, zeros(size(V,1),1));
+    
+    % - (2) Calculer I, le point d'intersection entre le vecteur OM et ce plan (besoin algos line-plane intersection
+    % distance) ; même point du plan pris que vecteur normal
+    
+    M = n;
+    u = cat(2,V(:,1:2)./sqrt(sum(V(:,1:2).^2,2)),zeros(size(V,1),1));
+    
+    I = V + u .* (dot(n,M,2) - dot(n,V,2)) ./ dot(n,u,2);
+    
+    % - (3) Calculer le ratio de distances k = OI / r (r, le rayon de la sphère circonscrite; a ici)
+    % - (4) Multiplier OM par r.
+    
+    k = a ./ sqrt(sum(I(:,1:2).^2,2));
+    V(:,1:2) = k .* V(:,1:2);
+    
+    if twisted_cylinder_option
+        
+        for k = 1:size(V,1)
+            
+            V(k,:) = (Mrz(V(k,3))*V(k,:)')';
+            
+        end
+        
+    end
+    
+end
+
+
+if torus_option        
+    
+    Mry = @(theta)[cos(theta) 0 -sin(theta);
+        0          1  0;
+        sin(theta) 0  cos(theta)];
+    
+    V(:,1) = 0.125*pi + 0.5*(1+V(:,1));
+    V(:,2) = 0.5*V(:,2);
+    Z = V(:,3);
+    
+    for k = 1:size(V,1)
+        
+        V(k,:) = (Mry(V(k,3))*cat(2,V(k,1:2),0)')';
+        
+    end
+    
+    V(:,3) = V(:,3) + sin(Z);
+    V(:,1) = V(:,1) + cos(Z);
+    
+    % Three other quarters creation
+    T = cat(1,T,T+size(V,1));        
+    
+    % 0.125*pi rotate all the other cylinders from their basis
+    V = cat(1,V,(Mry(0.25*pi)*V')');
+    T = cat(1,T,T+size(V,1));
+    V = cat(1,V,(Mry(0.5*pi)*V')');
+    T = cat(1,T,T+size(V,1));
+    V = cat(1,V,(Mry(pi)*V')');
+            
+end
 
 
 % Display
 if option_display          
     
-    disp_cube_101(V,T);
+    disp_octomenger_cube_shapes(V,T,C);
     
 end
 
 
-end % cube_101
+end % octomenger_cube_shapes
 
 
 % Split cube subfunction
@@ -519,6 +593,34 @@ F_new = [
          36 30 66 72;
          35 36 72 71;...
          
+         14 15 21 20; % Top layer middle row 2nd cube
+         50 51 57 56;
+         14 20 56 50;
+         15 14 50 51;
+         21 15 51 57
+         20 21 57 56;...
+         
+         16 17 23 22; % Top layer middle row 4th cube
+         52 53 59 58;
+         16 22 58 52;
+         17 16 52 53;
+         23 17 53 59;
+         22 23 59 58;...
+         
+         9 10 16 15; % Top layer 2nd row middle cube (+6)
+         45 46 52 51;
+         9 15 51 45;
+         10 9 45 46;
+         16 10 46 52;
+         15 16 52 51;...
+         
+         21 22 28 27; % Top layer 4th row middle cube (+12)
+         57 58 64 63;
+         21 27 63 57;
+         22 21 57 58;
+         28 22 58 64;
+         27 28 64 63;...
+         
          
          % Layer #2 (5 cubes)
          
@@ -556,6 +658,34 @@ F_new = [
          52 51 87 88;
          58 52 88 94;
          57 58 94 93;...
+         
+         39 40 46 45; % layer #2 top edge middle cube / back face centre cube
+         75 76 82 81;
+         39 45 81 75;
+         40 39 75 76;
+         46 40 76 82;
+         45 46 82 81;...
+                  
+         49 50 56 55; % layer #2 right edge middle cube / right face centre cube
+         85 86 92 91;
+         49 55 91 85;
+         50 49 85 86;
+         56 50 86 92;
+         55 56 92 91;...
+                           
+         53 54 60 59; % layer #2 left edge middle cube / left face centre cube
+         89 90 96 95;
+         53 59 95 89;
+         54 53 89 90;
+         60 54 90 96;
+         59 60 96 95;...
+                  
+         63 64 70 69; % layer #2 bottom edge middle cube / front face centre cube
+         99 100 106 105;
+         63 69 105 99;
+         64 63 99 100;
+         70 64 100 106;
+         69 70 106 105;...
          
          
          % Layer #3 (5 + 4 + 4 = 13 cubes)
@@ -651,6 +781,62 @@ F_new = [
          100 94 130 136;
          99 100 136 135;...
          
+         76 77 83 82 % layer #3 last before top left corner cube (-1)
+         112 113 119 118;
+         76 82 118 112;
+         77 76 112 113;
+         83 77 113 119;
+         82 83 119 118;...
+         
+         98 99 105 104; % layer #3 last before bottom right corner cube (+1)
+         134 135 141 140;
+         98 104 140 134;
+         99 98 134 135;
+         105 99 135 141;
+         104 105 141 140;...
+         
+         100 101 107 106; % layer #3 last before bottom left corner cube (-1)
+         136 137 143 142;
+         100 106 142 136;
+         101 100 136 137;
+         107 101 137 143;
+         106 107 143 142;...
+         
+         74 75 81 80; % layer #3 top edge second cube (+1)
+         110 111 117 116;
+         74 80 116 110;
+         75 74 110 111;
+         81 75 111 117;
+         80 81 117 116;...
+         
+         79 80 86 85; % layer #3 right edge top cube (+6)
+         115 116 122 121;
+         79 85 121 115;
+         80 79 115 116;
+         86 80 116 122;
+         85 86 122 121;...
+         
+         83 84 90 89 % layer #3 left edge top cube (+6)
+         119 120 126 125;
+         83 89 125 119;
+         84 83 119 120;
+         90 84 120 126;
+         89 90 126 125;...
+         
+         91 92 98 97; % layer #3 right edge bottom cube (+6)
+         127 128 134 133;
+         91 97 133 127;
+         92 91 127 128;
+         98 92 128 134;
+         97 98 134 133;...
+         
+         95 96 102 101; % layer #3 left edge bottom cube (+6)
+         131 132 138 137;
+         95 101 137 131;
+         96 95 131 132;
+         102 96 132 138;
+         101 102 138 137;...
+         
          % Layer #4 (5 cubes) (+72 / layer #2)
          
          109 110 116 115; % layer #4 top right corner cube
@@ -687,6 +873,34 @@ F_new = [
          124 123 159 160;
          130 124 160 166;
          129 130 166 165;...
+         
+         111 112 118 117; % layer #4 top edge middle cube / back face centre cube
+         147 148 154 153;
+         111 117 153 147;
+         112 111 147 148;
+         118 112 148 154;
+         117 118 154 153;...
+                  
+         121 122 128 127; % layer #4 right edge middle cube / right face centre cube
+         157 158 164 163;
+         121 127 163 157;
+         122 121 157 158;
+         128 122 158 164;
+         127 128 164 163;...
+                           
+         125 126 132 131; % layer #4 left edge middle cube / left face centre cube
+         161 162 168 167;
+         125 131 167 161;
+         126 125 161 162;
+         132 126 162 168;
+         131 132 168 167;...
+                  
+         135 136 142 141; % layer #4 bottom edge middle cube / front face centre cube
+         171 172 178 177;
+         135 141 177 171;
+         136 135 171 172;
+         142 136 172 178;
+         141 142 178 177;...                  
          
          
          % Bottom layer (#5) (+ 144 / 1st layer; index max = 216 = 144 + 72, ok)
@@ -808,7 +1022,35 @@ F_new = [
          173 179 215 209;
          174 173 209 210;
          180 174 210 216;
-         179 180 216 215;                  
+         179 180 216 215;...
+         
+         158 159 165 164; % Bottom layer middle row 2nd cube (+1)
+         194 195 201 200;
+         158 164 200 194;
+         159 158 194 195;
+         165 159 195 201;
+         164 165 201 200;...
+         
+         160 161 167 166; % Bottom layer middle row 4th cube (+1)
+         196 197 203 202;
+         160 166 202 196;
+         161 160 196 197;
+         167 161 197 203;
+         166 167 203 202;...
+         
+         153 154 160 159; % Bottom layer 2nd row middle cube (+6)
+         189 190 196 195;
+         153 159 195 189;
+         154 153 189 190;
+         160 154 190 196;
+         159 160 196 195;...
+                        
+         165 166 172 171; % Bottom layer 4th row middle cube (+12)
+         201 202 208 207;
+         165 171 207 201;
+         166 165 201 202;
+         172 166 202 208;
+         171 172 208 207;...
     ];
 
 end % split_cube
@@ -877,12 +1119,12 @@ end % squares2triangles
 
 
 % Display subfunction
-function [] = disp_cube_101(V, T)
+function [] = disp_octomenger_cube_shapes(V, T, C)
 %
 % Author & support : nicolas.douillet (at) free.fr, 2017-2022.
 
-C = max(abs(V),[],2);
-% C = sqrt(sum(V.^2,2));
+% C = max(abs(V(:,1:2)),[],2);
+C = sqrt(sum(V.^2,2));
 
 figure;
 set(gcf,'Color',[0 0 0]), set(gca,'Color',[0 0 0]);
@@ -896,7 +1138,7 @@ camlight left;
 view(-35,28.7080); % view(-45,35);
 zoom(1.1);
 
-end % disp_cube_101
+end % disp_octomenger_cube_shapes
 
 
 % Remove duplicated vertices subfunction
