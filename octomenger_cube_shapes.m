@@ -1123,13 +1123,13 @@ function [] = disp_octomenger_cube_shapes(V, T, C)
 %
 % Author & support : nicolas.douillet (at) free.fr, 2017-2022.
 
-% C = max(abs(V(:,1:2)),[],2);
-C = sqrt(sum(V.^2,2));
+C = max(abs(V),[],2);
+% C = sqrt(sum(V.^2,2));
 
 figure;
 set(gcf,'Color',[0 0 0]), set(gca,'Color',[0 0 0]);
 trisurf(T,V(:,1),V(:,2),V(:,3),C), shading interp, hold on;
-colormap(bone);
+colormap(flipud(1-jet.^0.5));
 axis square, axis equal, axis tight, axis off;
 grid off;
 ax = gca;

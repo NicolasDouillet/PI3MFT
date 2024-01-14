@@ -1,6 +1,6 @@
-function [V, T] = cube_101_shapes(nb_it, option_display)
+function [V, T] = jerusalem_5x5x5_shapes(nb_it, option_display)
 %
-% Author & support : nicolas.douillet (at) free.fr, 2017-2022.
+% Author & support : nicolas.douillet (at) free.fr, 2024.
 
 
 % Body
@@ -24,7 +24,7 @@ p = 0;
 
 while p ~= nb_it
         
-    new_C_array = repmat(C, [1 1 57]);
+    new_C_array = repmat(C, [1 1 68]);
     
     for j = 1 : size(C,3)
         
@@ -42,7 +42,7 @@ while p ~= nb_it
                             V_new(F_new(6*(m-1)+2,3),:),...
                             V_new(F_new(6*(m-1)+2,4),:));
             
-            new_C_array(:,:,57*(j-1) + m) = new_cube;
+            new_C_array(:,:,68*(j-1) + m) = new_cube;
             
         end                
         
@@ -65,6 +65,13 @@ torus_option = true;
 ball_option = false;
 
 
+if ball_option        
+    
+    [V,C] = ball_transformation(V,a);
+    
+end
+
+
 Mrz = @(theta)[cos(theta) -sin(theta) 0;
                sin(theta)  cos(theta) 0;
                0           0          1];
@@ -73,13 +80,6 @@ Mrz = @(theta)[cos(theta) -sin(theta) 0;
 if twisted_cube_option       
    
     [V, C] = twisted_cube_transformation(V, Mrz);           
-    
-end
-
-
-if ball_option        
-    
-    [V,C] = ball_transformation(V,a);
     
 end
 
@@ -168,12 +168,12 @@ end
 % Display
 if option_display          
     
-    disp_cube_101_shapes(V,T,C);
+    disp_jerusalem_5x5x5_shapes(V,T,C);
     
 end
 
 
-end % cube_101_shapes
+end % jerusalem_5x5x5_shapes
 
 
 % Split cube subfunction
@@ -528,14 +528,7 @@ F_new = [
          13 19 55 49;
          14 13 49 50;
          20 14 50 56;
-         19 20 56 55;...
-             
-         15 16 22 21; % Top layer centre cube
-         51 52 58 57;
-         15 21 57 51;
-         16 15 51 52;
-         22 16 52 58;
-         21 22 58 57;...
+         19 20 56 55;...                      
          
          17 18 24 23; % Top layer left edge middle cube
          53 54 60 59;
@@ -593,6 +586,35 @@ F_new = [
          36 30 66 72;
          35 36 72 71;...
          
+         8 9 15 14; % Top layer first right-left diagonal cube (+7)
+         44 45 51 50;
+         8 14 50 44;
+         9 8 44 45;
+         15 9 45 51;
+         14 15 51 50;...         
+                  
+         
+         22 23 29 28; % Top layer third right-left diagonal cube (+7)
+         58 59 65 64;
+         22 28 64 58;
+         23 22 58 59;
+         29 23 59 65;
+         28 29 65 64;...
+         
+         10 11 17 16; % Top layer first left-right diagonal cube (+5)
+         46 47 53 52;
+         10 16 52 46;
+         11 10 46 47;
+         17 11 47 53;
+         16 17 53 52;...
+         
+         20 21 27 26; % Top layer third left-right diagonal cube (+10)
+         56 57 63 62;
+         20 26 62 56;
+         21 20 56 57;
+         27 21 57 63;
+         26 27 63 62;...       
+         
          
          % Layer #2 (5 cubes)
          
@@ -622,15 +644,63 @@ F_new = [
          65 71 107 101;
          66 65 101 102;
          72 66 102 108;
-         71 72 108 107;...
+         71 72 108 107;... 
          
-         51 52 58 57; % layer #2 centre cube
-         87 88 94 93;
-         51 57 93 87;
-         52 51 87 88;
-         58 52 88 94;
-         57 58 94 93;...
+         38 39 45 44; % 2nd layer back face top right cube (+37)
+         74 75 81 80;
+         38 44 80 74;
+         39 38 74 75;
+         45 39 75 81;
+         44 45 81 80;...
+                  
+         40 41 47 46; % 2nd layer back face top left cube (+2)
+         76 77 83 82;
+         40 46 82 76;
+         41 40 76 77;
+         47 41 77 83;
+         46 47 83 82;...
          
+         43 44 50 49; % 2nd layer right face top right cube (+5)
+         79 80 86 85;
+         43 49 85 79;
+         44 43 79 80;
+         50 44 80 86;
+         49 50 86 85;...
+         
+         47 48 54 53; % 2nd layer left face top left cube (+4)
+         83 84 90 89;
+         47 53 89 83;
+         48 47 83 84;
+         54 48 84 90;
+         53 54 90 89;...
+         
+         55 56 62 61; % 2nd layer right face top left cube (+12)
+         91 92 98 97;
+         55 61 97 91;
+         56 55 91 92;
+         62 56 92 98;
+         61 62 98 97;...
+         
+         59 60 66 65; % 2nd layer left face top right cube (+12)
+         95 96 102 101;
+         59 65 101 95;
+         60 59 95 96;
+         66 60 96 102;
+         65 66 102 101;...
+         
+         62 63 69 68; % 2nd layer front face top right cube (+24)
+         98 99 105 104;
+         62 68 104 98;
+         63 62 98 99;
+         69 63 99 105;
+         68 69 105 104;...
+                  
+         64 65 71 70; % 2nd layer back face top left cube (+24)
+         100 101 107 106;
+         64 70 106 100;
+         65 64 100 101;
+         71 65 101 107;
+         70 71 107 106;...
          
          % Layer #3 (5 + 4 + 4 = 13 cubes)
          
@@ -660,70 +730,8 @@ F_new = [
          101 107 143 137;
          102 101 137 138;
          108 102 138 144;
-         107 108 144 143;...
-         
-         87 88 94 93; % layer #3 centre cube
-         123 124 130 129;
-         87 93 129 123;
-         88 87 123 124;
-         94 88 124 130;
-         93 94 130 129;...
-                           
-         75 76 82 81; % layer #3 top edge middle cube
-         111 112 118 117;
-         75 81 117 111;
-         75 75 111 112;
-         82 76 112 118;
-         81 82 118 117;...
-                  
-         85 86 92 91; % layer #3 right edge middle cube
-         121 122 128 127;
-         85 91 127 121;
-         86 85 121 122;
-         92 86 122 128;
-         91 92 128 127;...
-                           
-         89 90 96 95; % layer #3 left edge middle cube
-         125 126 132 131;
-         89 95 131 125;
-         90 89 125 126;
-         96 90 126 132;
-         95 96 132 131;...
-                  
-         99 100 106 105; % layer #3 bottom edge middle cube
-         135 136 142 141;
-         99 105 141 135;
-         100 99 135 136;
-         106 100 136 142;
-         105 106 142 141;...
-                  
-         81 82 88 87; % layer #3 centre cross top cube
-         117 118 124 123;
-         81 87 123 117;
-         82 81 117 118;
-         88 82 118 124;
-         87 88 124 123;...
-                  
-         86 87 93 92; % layer #3 centre cross right cube
-         122 123 129 128;
-         86 92 128 122;
-         87 86 122 123;
-         93 87 123 129;
-         92 93 129 128;...
-                  
-         88 89 95 94; % layer #3 centre cross left cube
-         124 125 131 130;
-         88 94 130 124;
-         89 88 124 125;
-         95 89 125 131;
-         94 95 131 130;...
-                  
-         93 94 100 99; % layer #3 centre cross bottom cube
-         129 130 136 135;
-         93 99 135 129;
-         94 93 129 130;
-         100 94 130 136;
-         99 100 136 135;...
+         107 108 144 143;...                  
+                                    
          
          % Layer #4 (5 cubes) (+72 / layer #2)
          
@@ -755,12 +763,61 @@ F_new = [
          144 138 174 180;
          143 144 180 179;...
          
-         123 124 130 129; % layer #4 centre cube
-         159 160 166 165;
-         123 129 165 159;
-         124 123 159 160;
-         130 124 160 166;
-         129 130 166 165;...
+         110 111 117 116; % 4th layer back face top right cube
+         146 147 153 152;
+         110 116 152 146;
+         111 110 146 147;
+         117 111 147 153;
+         116 117 153 152;...
+                  
+         112 113 119 118; % 4th layer back face top left cube 
+         148 149 155 154;
+         112 118 154 148;
+         113 112 148 149;
+         119 113 149 155;
+         118 119 155 154;...
+         
+         115 116 122 121; % 4th layer right face top right cube 
+         151 152 158 157;
+         115 121 157 151;
+         116 115 151 152;
+         122 116 152 158;
+         121 122 158 157;...
+         
+         119 120 126 125; % 4th layer left face top left cube 
+         155 156 162 161;
+         119 125 161 155;
+         120 119 155 156;
+         126 120 156 162;
+         125 126 162 161;...
+         
+         127 128 134 133; % 4th layer right face top left cube
+         163 164 170 169;
+         127 133 169 163;
+         128 127 163 164;
+         134 128 164 170;
+         133 134 170 169;...
+         
+         131 132 138 137; % 4th layer left face top right cube
+         167 168 174 173;
+         131 137 173 167;
+         132 131 167 168;
+         138 132 168 174;
+         137 138 174 173;...
+         
+         134 135 141 140; % 4th layer front face top right cube
+         170 171 177 176;
+         134 140 176 170;
+         135 134 170 171;
+         141 135 171 177;
+         140 141 177 176;...
+                  
+         136 137 143 142; % 4th layer back face top left cube
+         172 173 179 178;
+         136 142 178 172;
+         137 136 172 173;
+         143 137 173 179;
+         142 143 179 178;...
          
          
          % Bottom layer (#5) (+ 144 / 1st layer; index max = 216 = 144 + 72, ok)
@@ -819,14 +876,7 @@ F_new = [
          157 163 199 193;
          158 157 193 194;
          164 158 194 200;
-         163 164 200 199;...
-             
-         159 160 166 165; % Bottom layer centre cube
-         195 196 202 201;
-         159 165 201 195;
-         160 159 195 196;
-         166 160 196 202;
-         165 166 202 201;...
+         163 164 200 199;...                     
          
          161 162 168 167; % Bottom layer left edge middle cube
          197 198 204 203;
@@ -882,7 +932,35 @@ F_new = [
          173 179 215 209;
          174 173 209 210;
          180 174 210 216;
-         179 180 216 215;                  
+         179 180 216 215; 
+         
+         152 153 159 158; % Bottom layer first right-left diagonal cube (+7)
+         188 189 195 194;
+         152 158 194 188;
+         153 152 188 189;
+         159 153 189 195;
+         158 157 195 194;...                           
+         
+         166 167 173 172; % Bottom layer third right-left diagonal cube (+7)
+         202 203 209 208;
+         166 172 208 202;
+         167 166 202 203;
+         173 167 203 209;
+         172 173 209 208;...
+         
+         154 155 161 160; % Bottom layer first left-right diagonal cube (+5)
+         190 191 197 196;
+         154 160 196 190;
+         155 154 190 191;
+         161 155 191 197;
+         160 161 197 196;...
+         
+         164 165 171 170; % Bottom layer third left-right diagonal cube (+10)
+         200 201 207 206;
+         164 170 206 200;
+         165 164 200 201;
+         171 165 201 207;
+         170 171 207 206;...         
     ];
 
 end % split_cube
@@ -951,16 +1029,17 @@ end % squares2triangles
 
 
 % Display subfunction
-function [] = disp_cube_101_shapes(V, T, C)
+function [] = disp_jerusalem_5x5x5_shapes(V, T, C)
 %
 % Author & support : nicolas.douillet (at) free.fr, 2017-2022.
 
-% C = max(abs(V(:,1:2)),[],2);
+% C = max(abs(V),[],2);
+% C = sqrt(sum(V.^2,2));
 
 figure;
 set(gcf,'Color',[0 0 0]), set(gca,'Color',[0 0 0]);
 trisurf(T,V(:,1),V(:,2),V(:,3),C), shading interp, hold on;
-colormap(flipud(1-hsv.^0.5));
+colormap(flipud(1-jet.^0.5));
 axis square, axis equal, axis tight, axis off;
 grid off;
 ax = gca;
@@ -969,7 +1048,7 @@ camlight left;
 view(-35,28.7080); % view(-45,35);
 zoom(1.1);
 
-end % disp_cube_101_shapes
+end % disp_jerusalem_5x5x5_shapes
 
 
 % Remove duplicated vertices subfunction

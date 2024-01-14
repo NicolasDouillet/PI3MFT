@@ -1,4 +1,4 @@
-function [V, T, C] = Twisted_menger_band(nb_it, option_display)
+function [V, T, C] = Menger_moebius(nb_it, option_display)
 %
 % Author & support : nicolas.douillet (at) free.fr, 2022.
 
@@ -118,12 +118,12 @@ V = cat(1,V,(Mry(pi)*V')');
 % Display
 if option_display
     
-    disp_Twisted_menger_band(V,T,C);
+    disp_Menger_moebius(V,T,C);
     
 end
 
 
-end % Twisted_menger_band
+end % Menger_moebius
 
 
 % Split cube subfunction
@@ -446,7 +446,7 @@ end % squares2triangles
 
 
 % Display subfunction
-function [] = disp_Twisted_menger_band(V, T, C)
+function [] = disp_Menger_moebius(V, T, C)
 
     figure;        
     trisurf(T,V(:,1),V(:,2),V(:,3),C), shading interp, hold on;
@@ -458,7 +458,7 @@ function [] = disp_Twisted_menger_band(V, T, C)
     camlight(315,0);
     view(-25,15);
 
-end % disp_Twisted_menger_band
+end % disp_Menger_moebius
 
 
 % Remove duplicated vertices subfunction

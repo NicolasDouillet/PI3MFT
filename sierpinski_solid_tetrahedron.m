@@ -1,32 +1,37 @@
-function [V, T] = sierpinski_solid_tetrahedron(M1, M2, M3, M4, nb_it, option_display) % M1, M2, M3, 
+function [V, T] = sierpinski_solid_tetrahedron(M1, M2, M3, M4, nb_it, option_display)
 
 
 addpath('C:\Users\Nicolas\Desktop\TMW_contributions\mesh_processing_toolbox\src');
 
-% TODO :
-%
-% - Règlage sample_step
 
-% % Vertices of tetrahedron basis (level 0) included in the unit sphere
-% M1 = [2*sqrt(2)/3  0         -1/3]; % right
-% M2 = [-sqrt(2)/3  sqrt(6)/3  -1/3]; % top left
-% M3 = [-sqrt(2)/3 -sqrt(6)/3  -1/3]; % bottom left
-% M4 = [ 0          0           1  ]; % top
+if nargin < 1
+    
+    % Vertices of tetrahedron basis (level 0) included in the unit sphere
+    M1 = [2*sqrt(2)/3  0         -1/3]; % right
+    M2 = [-sqrt(2)/3  sqrt(6)/3  -1/3]; % top left
+    M3 = [-sqrt(2)/3 -sqrt(6)/3  -1/3]; % bottom left
+    M4 = [ 0          0           1  ]; % top
+    
+    nb_it = 2;
+    option_display = true;
+    
+end
 
 
 % Body
-sample_step = 4*2^(nb_it-1) + 1;
 summit_array = cat(1,M1,M2,M3,M4);
 p = 0;
+sample_step = 4*2^(nb_it-1) + 1;
 
 % nb_it iterations / loops over tetrahedron split function
 while p ~= nb_it
-        
+    
+    % tetrahedric base
     u = summit_array(2,:,1) - summit_array(1,:,1);
     v = summit_array(3,:,1) - summit_array(1,:,1);
     w = summit_array(4,:,1) - summit_array(1,:,1);
-           
-    new_summit_array = zeros(4,3,4^p); % 5
+    
+    new_summit_array = zeros(4,3,4^p);
     
     for k = 1:size(summit_array,3)
         
@@ -39,17 +44,17 @@ while p ~= nb_it
     sample_step = ceil(0.5*sample_step);
     summit_array = new_summit_array;
     p = p+1;
-        
+    
 end
-
 
 V = zeros(0,3);
 T = zeros(0,3);
 
-for k = 1:size(summit_array,3)
+
+for k = 1:size(summit_array,3)        
     
-    [V_sub,T_sub] = mesh_tetrahedron(summit_array(:,:,k),sample_step); % floor(0.25*sample_step) pour le tetra central
-    
+    [V_sub,T_sub] = mesh_tetrahedron(summit_array(:,:,k),sample_step);
+            
     if k > 1
         
         T_sub = T_sub + size(V,1);
@@ -57,7 +62,7 @@ for k = 1:size(summit_array,3)
     end
     
     V = cat(1,V,V_sub);
-    T = cat(1,T,T_sub);    
+    T = cat(1,T,T_sub);
     
 end
 
@@ -76,7 +81,7 @@ T = unique(sort(T,2),'rows','stable');
 % Remove internal faces (triangles which have > 6 neighbors)
 C = cell2mat(cellfun(@(t) numel(find(sum(bitor(bitor(T==T(t,1),T==T(t,2)),T==T(t,3)),2)==2)),num2cell((1:size(T,1))'),'un',0));
 tgl_idx_2_remove = find(C > 5);
-T = remove_triangles(tgl_idx_2_remove,T,'indices');
+T = remove_triangles(T,tgl_idx_2_remove,'indices');
 
 
 if option_display    
@@ -95,17 +100,14 @@ function [] = display_fractal_tetra(V, T)
 
 figure;
 set(gcf,'Color',[0 0 0]);
-% t = trisurf(T,V(:,1),V(:,2),V(:,3));
-C = sqrt(sum(V.^2,2));
-trisurf(T,V(:,1),V(:,2),V(:,3),C); colormap('hot');
-shading interp;
+t = trisurf(T,V(:,1),V(:,2),V(:,3));
+t.EdgeColor = 'g';
 
 set(gca,'Color',[0 0 0],'XColor',[1 1 1],'YColor',[1 1 1],'ZColor',[1 1 1]);
-% colormap([0 1 0]);
+colormap([0 1 0]);
 axis equal, axis tight;
-camlight head;
-% t.EdgeColor = 'g';
-view(-16.1569,21.3485); % -44, 21
+camlight left;
+view(-120,0);
 axis off;
 
 
@@ -150,16 +152,8 @@ T2 = M1 + u_ceil_shift + w_floor_shift;
 T3 = M1 + v_ceil_shift + w_floor_shift;
 T4 = M4; % M1' + w;
 T = cat(1,T1,T2,T3,T4);
-
-% % Centre tetra (optional)
-% X = mean([M1;M2;M3;M4],1);
-% C1 = X + 0.25*(M1-X);
-% C2 = X + 0.25*(M2-X);
-% C3 = X + 0.25*(M3-X);
-% C4 = X + 0.25*(M4-X);
-% C = cat(1,C1,C2,C3,C4);
-
-M_new = cat(3,R,L,B,T); % C
+    
+M_new = cat(3,R,L,B,T);    
 
 
 end % compute_new_tetra_summits
