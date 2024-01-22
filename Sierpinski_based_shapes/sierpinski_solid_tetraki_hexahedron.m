@@ -84,11 +84,4 @@ V = cat(1,V,Vtbr,Vbbl,Vbtr,Vin,Vtbp,Vsy,Vsx);
 T = cat(1,T,Ttbr,Tbbl,Tbtr,Tin,Ttbp,Tsy,Tsx);
 
 
-% % Remove duplicated vertices
-% [V,T] = remove_duplicated_vertices(V,T);
-% 
-% % Remove duplicated triangles
-% T = unique(sort(T,2),'rows','stable');
-
-
 end

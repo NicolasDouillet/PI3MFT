@@ -26,11 +26,5 @@ Rz2V = ([0 -1 0; 1 0 0; 0 0 1]*V')';
 T = cat(1,T,T+size(V,1));
 V = cat(1,V,Rz2V);
 
-% % Remove duplicated vertices
-% [V,T] = remove_duplicated_vertices(V,T);
-
-% % Remove duplicated triangles
-% T = unique(sort(T,2),'rows','stable');
-
 
 end

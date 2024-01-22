@@ -48,11 +48,4 @@ V = a*[V; Vr1; Vr2; Vr3; Vr4];
 T = [T; Tr1; Tr2; Tr3; Tr4];
 
 
-% % Remove duplicated vertices
-% [V,T] = remove_duplicated_vertices(V,T);
-% 
-% % Remove duplicated triangles
-% T = unique(sort(T,2),'rows','stable');
-
-
 end

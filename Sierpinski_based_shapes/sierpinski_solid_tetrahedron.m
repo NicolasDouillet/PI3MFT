@@ -49,7 +49,10 @@ for k = 1:size(summit_array,3)
     T = cat(1,T,T_sub);    
 end
 
-% % Remove duplicated triangles
-% T = unique(sort(T,2),'rows','stable');
+[V,T] = remove_duplicated_vertices(V,T);
+
+% Remove duplicated triangles
+T = unique(sort(T,2),'rows','stable');
+
 
 end

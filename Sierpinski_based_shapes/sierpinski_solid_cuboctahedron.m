@@ -73,11 +73,4 @@ V = cat(1,V,Vc);
 T = cat(1,T,Tc);
 
 
-% % Remove duplicated vertices
-% [V,T] = remove_duplicated_vertices(V,T);
-% 
-% % Remove duplicated triangles
-% T = unique(sort(T,2),'rows','stable');
-
-
 end
