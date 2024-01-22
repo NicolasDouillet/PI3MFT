@@ -11,7 +11,7 @@ axis square, axis equal, axis tight, axis off;
 grid off;
 ax = gca;
 ax.Clipping = 'off';
-camlight left;
+camlight head;
 view(az,el);
 
 

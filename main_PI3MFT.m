@@ -11,6 +11,7 @@ addpath('Sierpinski_based_shapes');
 addpath('other_shapes');
 
 
+% Logical parameters / choices for a pattern and options for a shape
 logtransform            = false;
 twisted_cube_shape      = false;
 
@@ -79,16 +80,16 @@ printable_ready         = true; % default
 
 % Maximum number of iterations
 switch pattern_id
-    case {1,2,3,4,15,16,17,18,19,20,21}
+    case {1,2,3,15,16,17,18,19,20,21}
         assert(nb_it < 5,'To save your computer health, number of iterations is limited to 4 for 3x3x3 cube and Sierpinski based patterns');
-    case {5,6,7,8,9,10,11,12,13,14}
+    case {4,5,6,7,8,9,10,11,12,13,14}
         assert(nb_it < 4,'To save your computer health, number of iterations is limited to 3 for 5x5x5 patterns');
     otherwise
         error('Non supported pattern identifier.');
 end
 
 
-% generic default parameters
+% Generic default parameters
 a = 1;                  % size parameter
 cmap = flipud(1-jet);   % color display parameter
 az = -37.5;             % view display parameter 1
@@ -164,7 +165,7 @@ switch pattern_id
 end
 
 
-% Algorithm
+% Switch for an algorithm
 switch pattern_id
     case {1,2,3}
         [V,T] = iterate_over_3x3x3_cube(a,nb_it,pattern_id,subcube_nb);
@@ -191,7 +192,7 @@ switch pattern_id
 end
 
 
-% Color
+% Color computation
 switch pattern_id
     case {1,4,5,6,7,8,11,12,13,14}
         C = max(abs(V(:,1:2)),[],2); % cube basic shape max(X,Y) colormap
@@ -202,14 +203,7 @@ switch pattern_id
 end
 
 
-if ~printable_ready
-        
-    [V,T,C] = remove_duplicated_colored_vertices(V,T,C);
-    
-    % Remove duplicated triangles
-    T = unique(sort(T,2),'rows','stable'); % /_!_\ Mess normal orientations /_!_\
-    
-end
+[V,T,C] = remove_duplicated_data(V,T,C,printable_ready);
 
 
 if logtransform
@@ -248,14 +242,14 @@ end
 if torus_shape   
     [V,T,C] = torus_transformation(V,T,C);
     az = 0;
-    el = -60;
+    el = -60;    
 end
 
 
 if moebius_shape    
     [V,T,C] = moebius_3D_ring_transformation(V,T);
-    az = 135;
-    el = 180;
+    az = 0;
+    el = -45;    
 end
 
 
@@ -271,16 +265,29 @@ if infinity_shape
 end
 
 
-% [V,T,C] = remove_duplicated_vertices_in_colored_point_set(V,T,C);
-
-
-if ~printable_ready  
-    T = unique(sort(T,2),'rows','stable'); % remove duplicated triangles
-end
+[V,T,C] = remove_duplicated_data(V,T,C,printable_ready);
 
 
 if option_display                 
-    display_meshed_fractal(V,T,C,az,el,cmap); % + light type
+    display_meshed_fractal(V,T,C,az,el,cmap);
+end
+
+
+end
+
+
+function [V, T, C] = remove_duplicated_data(V, T, C, printable_ready)
+%
+% Author : nicolas.douillet (at) free.fr, 2024.
+
+
+if ~printable_ready
+    
+    [V,T,C] = remove_duplicated_colored_vertices(V,T,C);
+    
+    % Remove duplicated triangles
+    T = unique(sort(T,2),'rows','stable'); % /_!_\ Mess normal orientations /_!_\
+    
 end
 
 

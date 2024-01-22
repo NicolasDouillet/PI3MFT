@@ -6,7 +6,7 @@ function F_new = cube_5x5x5_face_indices(pattern_id)
 switch pattern_id
     
     
-    case 3
+    case 4
         
         
         F_new = [1 3 15 13; % Top layer top right corner cube
@@ -162,7 +162,7 @@ switch pattern_id
             ];
         
         
-    case 4
+    case 5
         
         F_new = [
             % Top layer
@@ -488,7 +488,7 @@ switch pattern_id
             ];
         
         
-    case 5
+    case 6
         
         F_new = [
             % Top layer
@@ -1073,7 +1073,7 @@ switch pattern_id
             ];
         
         
-    case 6
+    case 7
         
         F_new = [
             % Top layer
@@ -1490,7 +1490,7 @@ switch pattern_id
             ];
         
         
-    case 7
+    case 8
         
         F_new = [
             % Top layer
@@ -2041,7 +2041,7 @@ switch pattern_id
             ];
         
         
-    case 8
+    case 9
         
         F_new = [
             % Top layer (4 cubes)
@@ -2179,7 +2179,7 @@ switch pattern_id
             ];
         
         
-    case 9
+    case 10
         
         F_new = [
             % Top layer
@@ -2492,7 +2492,7 @@ switch pattern_id
             ];
         
         
-    case 10
+    case 11
         
         F_new = [
             % Top layer
@@ -2780,7 +2780,7 @@ switch pattern_id
             ];
         
         
-    case 11
+    case 12
         
         F_new = [
             % Top layer
@@ -2954,7 +2954,7 @@ switch pattern_id
             ];
         
         
-    case 12
+    case 13
         
         F_new = [
             % Top layer
@@ -3310,7 +3310,7 @@ switch pattern_id
             ];
         
         
-    case 13
+    case 14
         
         F_new = [
             % Top layer
