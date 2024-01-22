@@ -192,6 +192,9 @@ switch pattern_id
 end
 
 
+[V,T] = remove_duplicated_vertices(V,T);
+
+
 % Color computation
 switch pattern_id
     case {1,4,5,6,7,8,11,12,13,14}
@@ -201,9 +204,6 @@ switch pattern_id
     otherwise
         error('Non supported pattern identifier.');
 end
-
-
-[V,T,C] = remove_duplicated_data(V,T,C,printable_ready);
 
 
 if logtransform
@@ -265,29 +265,14 @@ if infinity_shape
 end
 
 
-[V,T,C] = remove_duplicated_data(V,T,C,printable_ready);
+if ~printable_ready    
+    [V,T,C] = remove_duplicated_colored_vertices(V,T,C);        
+    T = unique(sort(T,2),'rows','stable'); % remove duplicated triangles
+end
 
 
 if option_display                 
     display_meshed_fractal(V,T,C,az,el,cmap);
-end
-
-
-end
-
-
-function [V, T, C] = remove_duplicated_data(V, T, C, printable_ready)
-%
-% Author : nicolas.douillet (at) free.fr, 2024.
-
-
-if ~printable_ready
-    
-    [V,T,C] = remove_duplicated_colored_vertices(V,T,C);
-    
-    % Remove duplicated triangles
-    T = unique(sort(T,2),'rows','stable'); % /_!_\ Mess normal orientations /_!_\
-    
 end
 
 

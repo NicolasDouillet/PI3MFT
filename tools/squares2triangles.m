@@ -35,4 +35,5 @@ end
 % Remove duplicated triangles
 T = unique(sort(T,2),'rows','stable');
 
+
 end
