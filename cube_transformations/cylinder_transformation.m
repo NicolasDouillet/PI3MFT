@@ -17,7 +17,7 @@ n = cat(2,a * sign(V(:,1:2)) .* f, zeros(size(V,1),1));
 % distance) ; même point du plan pris que vecteur normal
 
 M = n;
-u = cat(2,V(:,1:2)./sqrt(sum(V(:,1:2).^2,2)),zeros(size(V,1),1));
+u = cat(2,V(:,1:2)./vecnorm(V(:,1:2)',2)',zeros(size(V,1),1));
 
 I = V + u .* (dot(n,M,2) - dot(n,V,2)) ./ dot(n,u,2);
 
@@ -26,12 +26,12 @@ I = V + u .* (dot(n,M,2) - dot(n,V,2)) ./ dot(n,u,2);
 
 if nargin < 3 || strcmpi(type,'convex')
     
-    k = a ./ sqrt(sum(I(:,1:2).^2,2));
+    k = a ./ vecnorm(I(:,1:2)',2)';
     V(:,1:2) = k .* V(:,1:2);
     
 elseif nargin > 2 && strcmpi(type,'twisted')
     
-    k = a ./ sqrt(sum(I(:,1:2).^2,2));
+    k = a ./ vecnorm(I(:,1:2)',2)';
     V(:,1:2) = k .* V(:,1:2);
     
     Mrz = @(theta)[cos(theta) -sin(theta) 0;
@@ -47,7 +47,7 @@ elseif nargin > 2 && strcmpi(type,'twisted')
     
 elseif nargin > 2 &&  strcmpi(type,'concave')
     
-    k = a .* sqrt(sum(I(:,1:2).^2,2));
+    k = a .* vecnorm(I(:,1:2)',2)';
     V(:,1:2) = k .* V(:,1:2);        
     
 end

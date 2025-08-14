@@ -78,15 +78,15 @@ printable_ready         = true; % default
 % Triangular based Koch snowflake       : pattern_id = 21; no option available
 
 
-% Maximum number of iterations
-switch pattern_id
-    case {1,2,3,15,16,17,18,19,20,21}
-        assert(nb_it < 5,'To save your computer health, number of iterations is limited to 4 for 3x3x3 cube and Sierpinski based patterns');
-    case {4,5,6,7,8,9,10,11,12,13,14}
-        assert(nb_it < 4,'To save your computer health, number of iterations is limited to 3 for 5x5x5 patterns');
-    otherwise
-        error('Non supported pattern identifier.');
-end
+% % Maximum number of iterations
+% switch pattern_id
+%     case {1,2,3,15,16,17,18,19,20,21}
+%         assert(nb_it < 5,'To save your computer health, number of iterations is limited to 4 for 3x3x3 cube and Sierpinski based patterns');
+%     case {4,5,6,7,8,9,10,11,12,13,14}
+%         assert(nb_it < 4,'To save your computer health, number of iterations is limited to 3 for 5x5x5 patterns');
+%     otherwise
+%         error('Non supported pattern identifier.');
+% end
 
 
 % Generic default parameters
@@ -200,7 +200,7 @@ switch pattern_id
     case {1,4,5,6,7,8,11,12,13,14}
         C = max(abs(V(:,1:2)),[],2); % cube basic shape max(X,Y) colormap
     case {2,3,9,10,15,16,17,18,19,20,21}
-        C = sqrt(sum(V.^2,2));       % radial colormap
+        C = vecnorm(V',2)';       % radial colormap
     otherwise
         error('Non supported pattern identifier.');
 end

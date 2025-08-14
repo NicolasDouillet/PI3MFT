@@ -32,7 +32,8 @@ while p ~= nb_it
     
     sample_step = ceil(0.5*sample_step);
     summit_array = new_summit_array;
-    p = p+1;    
+    p = p+1; 
+    
 end
 
 V = zeros(0,3);

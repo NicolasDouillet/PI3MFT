@@ -1,0 +1,63 @@
+List of the PI3MFT toolbox functions ( 08 / 14 / 2025 )
+
+
+main_PI3MFT
+
+
+%% CUBE COORDINATES %%
+
+- cube_3x3x3_coord
+- cube_5x5x5_coord
+- iterate_over_3x3x3_cube
+- iterate_over_5x5x5_cube
+- iterate_over_jerusalem_cube
+- split_3x3x3_cube
+- split_5x5x5_cube
+- split_jerusalem_cube
+
+
+%% CUBE FACE INDICES %%
+
+- cube
+- cube_3x3x3_face_indices
+- cube_5x5x5_face_indices
+
+
+%% CUBE TRANSFORMATIONS %%
+
+- ball_transformation
+- crescent_transformation
+- cube_logtransformation
+- cylinder_transformation
+- infinity_sign_transformation
+- moebius_3D_ring_transformation
+- torus_transformation
+- twisted_cube_transformation
+
+
+%% OTHER SHAPES %%
+
+- koch_snowflake
+
+
+%% SIERPINSKI BASED SHAPES %%
+
+- sierpinski_solid_cube
+- sierpinski_solid_cuboctahedron
+- sierpinski_solid_icosahedron
+- sierpinski_solid_octahedron
+- sierpinski_solid_tetrahedron
+- sierpinski_solid_tetraki_hexahedron
+% - Sierpinski_solid_triangle
+% - tyre_sierpinski_surface
+
+
+%% TOOLS %%
+
+- compute_new_tetra_summits
+- display_meshed_fractal
+- mesh_tetrahedron
+- remove_duplicated_colored_vertices
+- remove_duplicated_vertices
+- sample_triangle
+- squares2triangles
