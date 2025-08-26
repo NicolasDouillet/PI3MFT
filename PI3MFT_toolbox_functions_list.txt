@@ -2,6 +2,7 @@ List of the PI3MFT toolbox functions ( 08 / 14 / 2025 )
 
 
 main_PI3MFT
+stereogram_display_example
 
 
 %% CUBE COORDINATES %%
@@ -55,6 +56,7 @@ main_PI3MFT
 %% TOOLS %%
 
 - compute_new_tetra_summits
+- cross_eye_vision_stereogram_display
 - display_meshed_fractal
 - mesh_tetrahedron
 - remove_duplicated_colored_vertices
