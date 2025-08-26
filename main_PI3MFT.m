@@ -137,6 +137,7 @@ switch pattern_id
         subcube_nb = 38;
         az = -45;
         el = 35;
+        cmap = flipud(1-hot);
         printable_ready = false;
     case 12
         subcube_nb = 22;
@@ -152,6 +153,7 @@ switch pattern_id
         M2 = a*[-sqrt(2)/3  sqrt(6)/3  -1/3]; % top left vertex
         M3 = a*[-sqrt(2)/3 -sqrt(6)/3  -1/3]; % bottom left vertex
         M4 = a*[ 0          0           1  ]; % top vertex
+        cmap = [0 1 0];
     case {16,17,18,19}
         % nothing to do
     case 20

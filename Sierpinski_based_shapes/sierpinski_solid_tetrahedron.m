@@ -52,8 +52,8 @@ end
 
 [V,T] = remove_duplicated_vertices(V,T);
 
-% Remove duplicated triangles
-T = unique(sort(T,2),'rows','stable');
+% % Remove duplicated triangles
+% T = unique(sort(T,2),'rows','stable');
 
 
 end

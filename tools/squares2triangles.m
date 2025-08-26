@@ -22,18 +22,15 @@ for k = 1:S
         c = C(:,:,k).facet(j,3) + 8*(k-1);
         d = C(:,:,k).facet(j,4) + 8*(k-1);
         
-        T1 = sort([a b c]);
-        T2 = sort([a d c]);
-        
+        T1 = [a b c];
+        T2 = [a c d];
+
         T(12*(k-1)+2*(j-1)+1,:) = T1;
         T(12*(k-1)+2*j,:) = T2;
         
     end
     
 end
-
-% Remove duplicated triangles
-T = unique(sort(T,2),'rows','stable');
 
 
 end
